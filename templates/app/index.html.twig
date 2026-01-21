@@ -1,0 +1,74 @@
+{% extends 'base_logged.html.twig' %}
+{% set current_page = 'home'%}
+
+{% block title %}Jugadores Top{% endblock %}
+
+{% block body %}
+
+    <div class="mb-8 w-full max-w-2xl">
+        <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            {# AÑADIDO ID: search-input #}
+            <input type="text"
+                   id="search-input"
+                   class="block w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl leading-5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black shadow-sm transition-all duration-200"
+                   placeholder="Buscar jugador por nombre...">
+
+            {# Spinner de carga oculto por defecto #}
+            <div id="search-loading" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Jugadores Top Ranking</h1>
+            <p class="text-gray-500 mt-1">Explora los mejores jugadores del circuito.</p>
+        </div>
+    </div>
+
+    <div id="players-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {# Aquí cargamos el parcial por primera vez #}
+        {% include 'app/_lista_jugadores.html.twig' %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const playersGrid = document.getElementById('players-grid');
+            const loadingSpinner = document.getElementById('search-loading');
+            let timeoutId;
+
+            // Función "Debounce": Espera a que el usuario deje de escribir para lanzar la petición
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value;
+
+                // Mostramos spinner
+                loadingSpinner.classList.remove('hidden');
+
+                // Cancelamos la búsqueda anterior si sigue escribiendo rápido
+                clearTimeout(timeoutId);
+
+                // Esperamos 500ms antes de buscar (para no saturar la API)
+                timeoutId = setTimeout(() => {
+                    fetch(`/app/search?q=${encodeURIComponent(query)}`)
+                        .then(response => response.text())
+                        .then(html => {
+                            // Reemplazamos el contenido del grid con el nuevo HTML
+                            playersGrid.innerHTML = html;
+                        })
+                        .catch(error => console.error('Error:', error))
+                        .finally(() => {
+                            // Ocultamos spinner
+                            loadingSpinner.classList.add('hidden');
+                        });
+                }, 500);
+            });
+        });
+    </script>
+{% endblock %}

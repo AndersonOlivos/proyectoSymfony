@@ -1,0 +1,12 @@
+parameters:
+    genius.access_token: '%env(PADELAPI_ACCESS_TOKEN)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            $padelApiToken: '%env(PADELAPI_ACCESS_TOKEN)%'
+
+    App\:
+        resource: '../src/'
