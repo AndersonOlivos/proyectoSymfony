@@ -16,6 +16,12 @@ class JugadorCategoriaRepository extends ServiceEntityRepository
         parent::__construct($registry, JugadorCategoria::class);
     }
 
+    public function obtenerIdCategoriasJugador(int $id): ?array{
+        return $this->findBy([
+            'jugador' => $id,
+        ]);
+    }
+
     //    /**
     //     * @return JugadorCategoria[] Returns an array of JugadorCategoria objects
     //     */

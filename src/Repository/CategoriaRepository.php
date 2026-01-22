@@ -11,9 +11,27 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CategoriaRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+
+    private $jugadorCategoriaRepository;
+
+    public function __construct(ManagerRegistry $registry, JugadorCategoriaRepository $jugadorCategoriaRepository)
     {
         parent::__construct($registry, Categoria::class);
+        $this->jugadorCategoriaRepository = $jugadorCategoriaRepository;
+    }
+
+    public function obtenerCategoriasJugador(int $id){
+        $idCategorias = $this->jugadorCategoriaRepository->obtenerIdCategoriasJugador($id);
+        $categorias = [];
+        if(!empty($idCategorias)){
+            foreach ($idCategorias as $idCategoria){
+                $categorias[] = $this->findOneBy([
+                    'id' => $idCategoria,
+                    'activo' => true
+                ]);
+            }
+        }
+        return $categorias;
     }
 
     //    /**

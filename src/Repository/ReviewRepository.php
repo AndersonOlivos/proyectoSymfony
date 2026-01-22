@@ -16,28 +16,36 @@ class ReviewRepository extends ServiceEntityRepository
         parent::__construct($registry, Review::class);
     }
 
-//    /**
-//     * @return Review[] Returns an array of Review objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('r.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function obtenerReviewJugador(int $idJugador, int $idUsuario): ?Review
+    {
+        return $this->findOneBy([
+            'jugador' => $idJugador,
+            'usuario' => $idUsuario,
+            'activo'  => true
+        ]);
+    }
 
-//    public function findOneBySomeField($value): ?Review
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function obtenerAllReviewsJugador(int $idJugador) : ?array{
+        return $this->findBy(
+            [
+                'jugador' => $idJugador,
+                'activo'  => true
+            ],
+            ['id' => 'DESC']
+        );
+    }
+
+    public function obtenerMediaReviews(int $idJugador): float
+    {
+        $media = $this->createQueryBuilder('r')
+            ->select('AVG(r.puntuacion) as media')
+            ->andWhere('r.jugador = :valJugador')
+            ->andWhere('r.activo = :valActivo')
+            ->setParameter('valJugador', $idJugador)
+            ->setParameter('valActivo', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $media ? (float) round($media, 1) : 0.0;
+    }
 }

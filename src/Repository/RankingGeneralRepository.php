@@ -16,6 +16,19 @@ class RankingGeneralRepository extends ServiceEntityRepository
         parent::__construct($registry, RankingGeneral::class);
     }
 
+    public function obtenerRankingGeneralesJugador($categorias){
+
+        $rankingGenerales = [];
+
+        foreach($categorias as $categoria){
+            $rankingGenerales[] = $this -> findOneBy(['categoria' => $categoria->getId(), 'activo' => true]);
+        }
+
+        if(count($rankingGenerales) > 0 && $rankingGenerales[0] != null){
+            return $rankingGenerales;
+        } else return [];
+    }
+
     //    /**
     //     * @return RankingGeneral[] Returns an array of RankingGeneral objects
     //     */

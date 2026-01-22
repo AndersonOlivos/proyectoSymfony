@@ -213,7 +213,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        $roles = $this->roles;
+        $roles = $this->rol;
         $roles[] = 'ROLE_USER';
         return array_unique($roles);
     }

@@ -1,29 +1,5 @@
 {% extends 'base_logged.html.twig' %}
 
-{# --- MOCK DATA ACTUALIZADO: Más rankings y opiniones para simular la paginación --- #}
-{% set player = {
-    name: 'Alejandro Galán',
-    position: 'Revés',
-    nationality: 'España',
-    birth_date: '15/05/1996',
-    height: '1.86m',
-    image: 'https://images.unsplash.com/photo-1599474924187-334a405be631?q=80&w=2070&auto=format&fit=crop',
-    score_avg: 9.8,
-    total_votes: 1240,
-    categories: ['Rematador', 'Potencia', 'Agresivo'],
-    active_challenges: [
-        { name: 'El Mejor Rematador', description: 'Crea tu Top 10 de rematadores.', category_required: 'Rematador' },
-        { name: 'Jugadores Más Agresivos', description: 'Ranking de los jugadores que más arriesgan.', category_required: 'Agresivo' },
-        { name: 'Potencia Pura', description: '¿Quién le pega más fuerte a la bola?', category_required: 'Potencia' }
-    ]
-} %}
-
-{% set reviews = [
-    { user: 'JuanPadel', avatar: 'https://i.pravatar.cc/150?u=1', score: 10, comment: 'Es increíble la potencia que tiene en el remate. El mejor ahora mismo.', date: 'Hace 2 días' },
-    { user: 'Marta_99', avatar: 'https://i.pravatar.cc/150?u=5', score: 9, comment: 'A veces arriesga demasiado, pero es puro espectáculo.', date: 'Hace 5 días' },
-    { user: 'PadelFan23', avatar: 'https://i.pravatar.cc/150?u=8', score: 8, comment: 'Buen jugador pero le falta consistencia en globos.', date: 'Hace 1 semana' }
-] %}
-
 {% block title %}{{ jugador.nombre }} - Detalle{% endblock %}
 
 {% block body %}
@@ -43,11 +19,20 @@
             <div class="bg-white rounded-[30px] p-4 shadow-sm relative group overflow-hidden sticky top-6">
                 <div class="h-[400px] w-full rounded-[25px] overflow-hidden relative">
                     <img src="{{ jugador.imagen }}" alt="{{ jugador.nombre }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+
                     <span class="absolute top-4 left-4 bg-black/70 backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide">
-                        {{ jugador.lado }}
-                    </span>
-                    <button class="absolute top-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white text-white hover:text-red-500 p-2.5 rounded-full transition-all duration-300 group/fav">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform group-active/fav:scale-75" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        {{ jugador.lado }}
+    </span>
+                    <button type="button"
+                            onclick="toggleFavorito(this)"
+                            data-url="{{ path('app_jugador_toggle_fav', {id: jugador.id}) }}"
+                            class="absolute top-4 right-4 z-20 bg-white hover:scale-110 shadow-lg p-2.5 rounded-full transition-all duration-300 group/fav flex items-center justify-center">
+
+                        <svg id="icono-corazon"
+                             xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 transition-colors {{ esFavorito ? 'text-red-500 fill-current' : 'text-gray-900 fill-none' }}"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                     </button>
@@ -56,9 +41,14 @@
                 <div class="pt-6 px-2 pb-2 text-center">
                     <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-1">{{ jugador.nombre }}</h1>
                     <div class="flex flex-wrap justify-center gap-2 mb-4">
-                        {% for cat in player.categories %}
-                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider">{{ cat }}</span>
-                        {% endfor %}
+                        {%if categorias|length > 0 %}
+                            {% for cat in categorias %}
+                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider">{{ cat.nombre }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider">Sin categorías</span>
+                        {% endif %}
+
                     </div>
                     <div class="flex justify-center items-center gap-2 text-gray-500 text-sm font-medium mb-6">
                         <span class="flex justify-center items-center gap-1"><img src="https://flagsapi.com/{{ jugador.nacionalidad }}/flat/32.png">  {{ jugador.nacionalidad }}</span>
@@ -68,10 +58,13 @@
                     <div class="bg-gray-50 rounded-2xl p-4 flex justify-between items-center">
                         <div class="text-left">
                             <p class="text-xs text-gray-400 uppercase font-bold">Nota Media</p>
-                            <p class="text-xs text-gray-500">{{ player.total_votes }} valoraciones</p>
+                            <p class="text-xs text-gray-500">
+                                {{ reviews|length }}
+                                {% if reviews|length > 1 %} valoraciones {% else %} valoración {% endif %}
+                            </p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-4xl font-black text-gray-900">{{ player.score_avg }}</span>
+                            <span class="text-4xl font-black text-gray-900">{{ mediaReviews }}</span>
                             <svg class="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
                     </div>
@@ -83,73 +76,103 @@
         <div class="xl:col-span-2 space-y-8">
 
             <div class="bg-white border border-gray-100 rounded-[30px] p-8 shadow-sm">
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Tu valoración personal</h3>
-                        <p class="text-gray-500 text-sm">Puntúa a {{ player.name }} y deja tu huella.</p>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        {% for i in 1..5 %}
-                            <button class="group focus:outline-none transition-transform active:scale-90">
-                                <svg class="w-10 h-10 text-gray-200 hover:text-yellow-400 transition-colors fill-current" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                            </button>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="mt-6 bg-gray-50 p-4 rounded-2xl">
-                    <textarea class="w-full bg-transparent border-none text-sm focus:ring-0 placeholder-gray-400 resize-none" rows="2" placeholder="Escribe tu opinión sobre el juego de {{ player.name }}..."></textarea>
-                    <div class="flex justify-end mt-2 border-t border-gray-200 pt-3">
-                        <button class="bg-black text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors shadow-lg shadow-gray-200">
-                            Publicar Valoración
-                        </button>
-                    </div>
-                </div>
-            </div>
+                {% set usuario_puntuacion = review ? review.puntuacion : 0 %}
+                {% set usuario_texto = review ? review.texto : '' %}
+                {% set boton_texto_valoracion = review ? 'Actualizar Valoración' : 'Publicar Valoración' %}
 
+                <form method="post">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">Tu valoración personal</h3>
+                            <p class="text-gray-500 text-sm">Puntúa a {{ jugador.nombre }} y deja tu huella.</p>
+                        </div>
+
+                        <input type="hidden" name="puntuacion" id="scoreInput" value="{{ usuario_puntuacion }}">
+
+                        <div class="flex items-center gap-1" id="starContainer">
+                            {% for i in 1..5 %}
+                                <button type="button" onclick="setRating({{ i }})" class="group focus:outline-none transition-transform active:scale-90">
+                                    <svg class="w-10 h-10 transition-colors fill-current {{ i <= usuario_puntuacion ? 'text-yellow-400' : 'text-gray-200 hover:text-yellow-200' }}" id="star-{{ i }}" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-gray-50 p-4 rounded-2xl">
+                        <textarea name="comentario" class="w-full bg-gray-50 border-none text-sm text-gray-900 placeholder-gray-400 resize-none rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:bg-white transition-all duration-300" rows="2" placeholder="Escribe tu opinión sobre el juego de {{ jugador.nombre }}...">{{ usuario_texto }}</textarea>
+                        <div class="flex justify-end mt-2 border-t border-gray-200 pt-3">
+                            <button type="submit" class="bg-black text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors shadow-lg shadow-gray-200">
+                                {{ boton_texto_valoracion }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
             <div class="bg-black text-white rounded-[30px] p-8 shadow-xl relative overflow-hidden">
                 <div class="relative z-10">
+                    {% set items_per_page = 3 %}
+                    {% set total_items = rankingsGenerales|length %}
+                    {% set total_pages = (total_items / items_per_page)|round(0, 'ceil') %}
+                    {% if total_pages < 1 %}{% set total_pages = 1 %}{% endif %}
+
                     <div class="flex items-center justify-between mb-6">
                         <div>
                             <h2 class="text-2xl font-bold">Rankings Activos 🏆</h2>
                             <p class="text-gray-400 text-sm mt-1">Participa en las categorías oficiales de este jugador.</p>
                         </div>
-                        <span class="bg-white/10 px-3 py-1 rounded-full text-xs font-mono">1 / 2</span>
+                        <span class="bg-white/10 px-3 py-1 rounded-full text-xs font-mono">
+                            <span id="current-ranking-page">1</span> / {{ total_pages }}
+                        </span>
                     </div>
 
-                    <div class="space-y-4 mb-6">
-                        {% for challenge in player.active_challenges %}
-                            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-5 hover:bg-white/20 transition-all cursor-pointer group">
-                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <div>
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Oficial</span>
-                                            <h3 class="text-lg font-bold group-hover:text-yellow-400 transition-colors">{{ challenge.name }}</h3>
+                    <div class="space-y-4 mb-6" id="ranking-list-container">
+                        {% if rankingsGenerales is not null and rankingsGenerales|length > 0 %}
+                            {% for rankingGeneral in rankingsGenerales %}
+                                {% set page = ((loop.index0 / items_per_page)|round(0, 'floor')) + 1 %}
+
+                                <div class="ranking-item bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-5 hover:bg-white/20 transition-all cursor-pointer group {{ page > 1 ? 'hidden' : '' }}"
+                                     data-page="{{ page }}">
+                                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Oficial</span>
+                                                <h3 class="text-lg font-bold group-hover:text-yellow-400 transition-colors">{{ rankingGeneral.titulo ?? 'Desconocido'}}</h3>
+                                            </div>
+                                            <p class="text-gray-300 text-xs md:text-sm">{{ rankingGeneral.descripcion ?? 'Desconocido' }}</p>
                                         </div>
-                                        <p class="text-gray-300 text-xs md:text-sm">{{ challenge.description }}</p>
+                                        <button class="shrink-0 bg-white text-black px-5 py-2.5 rounded-xl text-xs font-bold uppercase hover:bg-gray-200 transition-colors">
+                                            Crear Top 10
+                                        </button>
                                     </div>
-                                    <button class="shrink-0 bg-white text-black px-5 py-2.5 rounded-xl text-xs font-bold uppercase hover:bg-gray-200 transition-colors">
-                                        Crear Top 10
-                                    </button>
                                 </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+                                <p class="text-gray-400 italic">Este jugador no pertenece a ningún ranking activo actualmente.</p>
                             </div>
-                        {% endfor %}
+                        {% endif %}
                     </div>
 
-                    <div class="flex justify-center items-center gap-4 pt-2 border-t border-white/10">
-                        <button class="p-2 rounded-full hover:bg-white/20 text-gray-400 hover:text-white disabled:opacity-50 transition-colors" disabled>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        </button>
-                        <div class="flex gap-2">
-                            <button class="w-2 h-2 rounded-full bg-white"></button>
-                            <button class="w-2 h-2 rounded-full bg-white/30 hover:bg-white/50"></button>
+                    {% if total_pages > 1 %}
+                        <div class="flex justify-center items-center gap-4 pt-2 border-t border-white/10">
+                            <button onclick="changeRankingPage(-1)" id="btn-prev-ranking" class="p-2 rounded-full hover:bg-white/20 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors" disabled>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+
+                            <div class="flex gap-2">
+                                {% for p in 1..total_pages %}
+                                    <button class="w-2 h-2 rounded-full transition-colors {{ p == 1 ? 'bg-white' : 'bg-white/30' }} ranking-dot" id="dot-{{ p }}"></button>
+                                {% endfor %}
+                            </div>
+
+                            <button onclick="changeRankingPage(1)" id="btn-next-ranking" class="p-2 rounded-full hover:bg-white/20 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
                         </div>
-                        <button class="p-2 rounded-full hover:bg-white/20 text-gray-400 hover:text-white transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </button>
-                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-900 to-purple-900 rounded-full blur-3xl opacity-40 -mr-20 -mt-20 pointer-events-none"></div>
@@ -160,42 +183,153 @@
                 <div class="flex items-center justify-between mb-8">
                     <h3 class="text-xl font-bold text-gray-900">Opiniones</h3>
 
-                    <select class="bg-gray-50 border-none text-xs font-medium text-gray-500 rounded-lg focus:ring-0 cursor-pointer">
-                        <option>Más recientes</option>
-                        <option>Mejor valoradas</option>
+                    <select onchange="location = this.value;" class="bg-gray-50 border-none text-xs font-medium text-gray-900 rounded-lg focus:ring-0 cursor-pointer p-2">
+                        <option value="{{ path('app_jugador', {id: jugador.id, sort: 'recientes'}) }}" {{ currentSort == 'recientes' ? 'selected' : '' }}>Más recientes</option>
+                        <option value="{{ path('app_jugador', {id: jugador.id, sort: 'mejores'}) }}" {{ currentSort == 'mejores' ? 'selected' : '' }}>Mejor valoradas</option>
                     </select>
                 </div>
 
-                <div class="space-y-8">
+                <div class="space-y-8" id="reviews-container">
                     {% for review in reviews %}
-                        <div class="flex gap-4 animate-fade-in-up">
-                            <img src="{{ review.avatar }}" alt="User" class="w-11 h-11 rounded-full bg-gray-200 shadow-sm border border-white">
+                        <div class="flex gap-4 animate-fade-in-up review-item {{ loop.index > 5 ? 'hidden' : '' }}">
+                            <img src="https://ui-avatars.com/api/?name={{ review.nombreUsuario }}&background=random&color=fff&size=200" alt="User" class="w-11 h-11 rounded-full bg-gray-200 shadow-sm border border-white">
                             <div class="flex-1">
                                 <div class="flex justify-between items-start mb-1">
                                     <div>
-                                        <h4 class="text-sm font-bold text-gray-900">{{ review.user }}</h4>
-                                        <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wide">{{ review.date }}</p>
+                                        <h4 class="text-sm font-bold text-gray-900">{{ review.nombreUsuario }}</h4>
                                     </div>
                                     <span class="flex items-center gap-1 text-xs font-bold text-black bg-gray-100 px-2 py-1 rounded-lg border border-gray-200">
-                                        ★ {{ review.score }}
+                                        ★ {{ review.puntuacion }}
                                     </span>
                                 </div>
-                                <p class="text-sm text-gray-600 leading-relaxed mt-1">{{ review.comment }}</p>
+                                <p class="text-sm text-gray-600 leading-relaxed mt-1">{{ review.texto }}</p>
                             </div>
                         </div>
                     {% endfor %}
+
+                    {% if reviews|length == 0 %}
+                        <p class="text-center text-gray-400 py-4 text-sm">Aún no hay opiniones. ¡Sé el primero!</p>
+                    {% endif %}
                 </div>
 
-                <div class="mt-10 text-center border-t border-gray-100 pt-6">
-                    <button class="text-sm font-semibold text-gray-500 hover:text-black transition-colors flex items-center justify-center gap-2 mx-auto w-full py-2 hover:bg-gray-50 rounded-xl">
-                        <span>Cargar más opiniones</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                </div>
+                {% if reviews|length > 5 %}
+                    <div class="mt-10 text-center border-t border-gray-100 pt-6" id="load-more-btn-container">
+                        <button onclick="loadMoreReviews()" class="text-sm font-semibold text-gray-500 hover:text-black transition-colors flex items-center justify-center gap-2 mx-auto w-full py-2 hover:bg-gray-50 rounded-xl">
+                            <span>Cargar más opiniones</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                {% endif %}
             </div>
 
         </div>
     </div>
+
+    <script>
+
+        async function toggleFavorito(btn) {
+            const url = btn.getAttribute('data-url');
+            const icon = document.getElementById('icono-corazon');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.esFavorito) {
+                        icon.classList.remove('text-gray-900', 'fill-none');
+                        icon.classList.add('text-red-500', 'fill-current');
+
+                        btn.classList.add('scale-125');
+                        setTimeout(() => btn.classList.remove('scale-125'), 200);
+                    } else {
+                        icon.classList.remove('text-red-500', 'fill-current');
+                        icon.classList.add('text-gray-900', 'fill-none');
+                    }
+                } else {
+                    console.error('Error al actualizar favorito');
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
+            }
+        }
+
+        function setRating(rating) {
+            document.getElementById('scoreInput').value = rating;
+            for (let i = 1; i <= 5; i++) {
+                const star = document.getElementById('star-' + i);
+                if (i <= rating) {
+                    star.classList.remove('text-gray-200');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-200');
+                }
+            }
+        }
+
+        function loadMoreReviews() {
+            const hiddenReviews = document.querySelectorAll('.review-item.hidden');
+            let count = 0;
+
+            hiddenReviews.forEach(item => {
+                if(count < 5) {
+                    item.classList.remove('hidden');
+                    count++;
+                }
+            });
+
+            if(document.querySelectorAll('.review-item.hidden').length === 0) {
+                document.getElementById('load-more-btn-container').style.display = 'none';
+            }
+        }
+
+        let currentRankingPage = 1;
+        const totalRankingPages = {{ total_pages|default(1) }};
+
+        function changeRankingPage(direction) {
+            const newPage = currentRankingPage + direction;
+
+            if(newPage < 1 || newPage > totalRankingPages) return;
+
+            currentRankingPage = newPage;
+
+            document.getElementById('current-ranking-page').innerText = currentRankingPage;
+
+            document.querySelectorAll('.ranking-item').forEach(item => {
+                if(parseInt(item.getAttribute('data-page')) === currentRankingPage) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('btn-prev-ranking').disabled = (currentRankingPage === 1);
+            document.getElementById('btn-next-ranking').disabled = (currentRankingPage === totalRankingPages);
+
+            document.querySelectorAll('.ranking-dot').forEach((dot, index) => {
+                if((index + 1) === currentRankingPage) {
+                    dot.classList.remove('bg-white/30');
+                    dot.classList.add('bg-white');
+                } else {
+                    dot.classList.remove('bg-white');
+                    dot.classList.add('bg-white/30');
+                }
+            });
+        }
+    </script>
+
 {% endblock %}
