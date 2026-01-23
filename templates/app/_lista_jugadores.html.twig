@@ -1,7 +1,6 @@
 {# templates/app/_lista_jugadores.html.twig #}
 
 {% for jugador in jugadores %}
-    {# 1. CAMBIO: Convertimos el DIV principal en un A y añadimos 'block' #}
     <a href="{{ path('app_jugador', { 'id': jugador.id }) }}"
        class="block bg-white rounded-[25px] p-3 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer">
 
@@ -30,7 +29,6 @@
                     <span class="text-xs font-bold text-gray-700">{{ jugador.puntos }} pts</span>
                 </div>
 
-                {# 2. CAMBIO: Esto ahora es un SPAN visual, ya no es un link independiente #}
                 <span class="text-xs font-medium text-gray-400 group-hover:text-black transition-colors flex items-center gap-1">
                     Ver perfil
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>

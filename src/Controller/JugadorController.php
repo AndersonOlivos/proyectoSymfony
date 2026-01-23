@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\JugadoresFavoritos;
 use App\Entity\Review;
 use App\Repository\CategoriaRepository;
+use App\Repository\JugadoresFavoritosRepository;
 use App\Repository\JugadorRepository;
 use App\Repository\RankingGeneralRepository;
 use App\Repository\ReviewRepository;
@@ -23,6 +25,7 @@ final class JugadorController extends AbstractController
                           ReviewRepository $reviewRepository,
                           RankingGeneralRepository $rankingGeneralesRepository,
                           EntityManagerInterface $entityManager,
+                          JugadoresFavoritosRepository $jugadoresFavoritosRepository,
                           Request $request): Response
     {
 
@@ -36,7 +39,14 @@ final class JugadorController extends AbstractController
         $mediaReviews = $reviewRepository -> obtenerMediaReviews($id);
         $categorias = $categoriaRepository -> obtenerCategoriasJugador($id);
         $rankingsGenerales = $rankingGeneralesRepository -> obtenerRankingGeneralesJugador($categorias);
-        $esFavorito = $this -> getUser() -> getJugadoresFavoritos() -> contains($jugadorRepository->find($id));
+        $esFavorito = false;
+
+        $jugadorFavorito = $jugadoresFavoritosRepository -> findOneBy([
+            'usuario' => $this -> getUser(),
+            'jugador' => $jugador
+        ]);
+
+        if ($jugadorFavorito != null && $jugadorFavorito->isFavorito()){$esFavorito = true;} else {$esFavorito = false;}
 
         $datosReviews = [];
         foreach($reviews as $reviewUsuario){
@@ -69,6 +79,7 @@ final class JugadorController extends AbstractController
                 $review = new Review();
                 $review->setJugador($jugadorRepository->find($id));
                 $review->setUsuario($this->getUser());
+                $review->setActivo(true);
             }
             $puntuacion = $request->request->get('puntuacion');
             $texto = $request->request->get('comentario');
@@ -92,22 +103,41 @@ final class JugadorController extends AbstractController
     }
 
     #[Route('/jugador/{id}/favorito', name: 'app_jugador_toggle_fav', methods: ['POST'])]
-    public function toggleFavorito(int $id, JugadorRepository $jugadorRepository, EntityManagerInterface $em): Response
+    public function toggleFavorito(int                    $id,
+                                   JugadorRepository      $jugadorRepository,
+                                   EntityManagerInterface $entityManager,
+                                    JugadoresFavoritosRepository $jugadoresFavoritosRepository): Response
     {
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
         $jugador = $jugadorRepository->find($id);
 
-        if ($user->getJugadoresFavoritos()->contains($jugador)) {
-            $user->removeJugadoresFavorito($jugador);
+        $jugadorFavorito = $jugadoresFavoritosRepository -> findOneBy([
+            'usuario' => $user,
+            'jugador' => $jugador
+        ]);
+
+        if ($jugadorFavorito == null){
+            $jugadorFavorito = new JugadoresFavoritos();
+            $jugadorFavorito->setUsuario($user);
+            $jugadorFavorito->setJugador($jugador);
+            $jugadorFavorito->setFavorito(true);
+            $entityManager->persist($jugadorFavorito);
+            $entityManager->flush();
         } else {
-            $user->addJugadoresFavorito($jugador);
+            if($jugadorFavorito->isFavorito()){
+                $jugadorFavorito->setFavorito(false);
+            } else {
+                $jugadorFavorito->setFavorito(true);
+            }
+            $entityManager->persist($jugadorFavorito);
+            $entityManager->flush();
         }
 
-        $em->persist($user);
-        $em->flush();
-
-        return $this->redirectToRoute('app_jugador', ['id' => $id]);
+        return $this->json([
+            'success' => true,
+            'esFavorito' => $jugadorFavorito->isFavorito(),
+        ]);
     }
 }

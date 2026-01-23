@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\JugadorRepository;
 use App\Repository\UsuarioRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

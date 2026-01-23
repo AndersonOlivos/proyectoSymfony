@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Jugador;
 use App\Entity\JugadoresFavoritos;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,28 +17,19 @@ class JugadoresFavoritosRepository extends ServiceEntityRepository
         parent::__construct($registry, JugadoresFavoritos::class);
     }
 
-    //    /**
-    //     * @return JugadoresFavoritos[] Returns an array of JugadoresFavoritos objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('j')
-    //            ->andWhere('j.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('j.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function obtenerJugadoresFavoritosActivos(int $idUsuario): array{
 
-    //    public function findOneBySomeField($value): ?JugadoresFavoritos
-    //    {
-    //        return $this->createQueryBuilder('j')
-    //            ->andWhere('j.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('j')
+            ->from(Jugador::class, 'j')
+            ->join(JugadoresFavoritos::class, 'jf', 'WITH', 'jf.jugador = j')
+            ->where('jf.usuario = :valUsuario')
+            ->andWhere('j.activo = :valActivo')
+            ->andWhere('jf.favorito = :valFavorito')
+            ->setParameter('valUsuario', $idUsuario)
+            ->setParameter('valActivo', true)
+            ->setParameter('valFavorito', true)
+            ->getQuery()
+            ->getResult();
+    }
 }
