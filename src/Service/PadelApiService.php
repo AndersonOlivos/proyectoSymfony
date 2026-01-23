@@ -178,6 +178,7 @@ class PadelApiService
             $jugadorBD->setPuntos($jugador['points'] ?? 0);
             $jugadorBD->setImagenUrl($jugador['photo_url'] ?? null);
             $jugadorBD->setAltura($jugador['height'] ?? null);
+            $jugadorBD->setActivo(true);
 
         }
 

@@ -1,0 +1,155 @@
+{# templates/base_admin.html.twig #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{{ asset('/images/logoPadelRank.png') }}">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen w-screen flex items-center justify-center p-4 lg:p-6 overflow-hidden">
+
+<div class="bg-white w-full h-full max-w-[1600px] rounded-[40px] shadow-2xl flex overflow-hidden relative">
+
+    <aside class="w-24 h-full flex flex-col items-center py-8 border-r border-gray-100 z-20 bg-white">
+
+        <div class="mb-12">
+            <a href="#" class="flex flex-col items-center text-2xl font-bold text-gray-900 tracking-tighter leading-none group">
+                <span class="text-yellow-500">Admin</span>
+                <span class="text-gray-400 group-hover:text-black transition-colors text-sm">Panel</span>
+            </a>
+        </div>
+
+        <nav class="flex-1 flex flex-col gap-8 w-full px-4">
+            {% set current_page = current_page|default('') %}
+
+            {# 1. DASHBOARD #}
+            <a href="#"
+               class="group relative flex items-center justify-center w-full h-12 rounded-xl transition-all duration-300
+               {{ current_page == 'dashboard' ? 'bg-black text-white shadow-lg shadow-gray-300' : 'text-gray-400 hover:text-white hover:bg-black' }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                <span class="absolute left-14 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50 pointer-events-none">
+                    Dashboard
+                </span>
+            </a>
+
+            {# 2. GESTIÓN JUGADORES #}
+            <a href="#"
+               class="group relative flex items-center justify-center w-full h-12 rounded-xl transition-all duration-300
+               {{ current_page == 'jugadores' ? 'bg-black text-white shadow-lg shadow-gray-300' : 'text-gray-400 hover:text-white hover:bg-black' }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span class="absolute left-14 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50 pointer-events-none">
+                    Jugadores
+                </span>
+            </a>
+
+            {# 3. GESTIÓN USUARIOS #}
+            <a href="#"
+               class="group relative flex items-center justify-center w-full h-12 rounded-xl transition-all duration-300
+               {{ current_page == 'usuarios' ? 'bg-black text-white shadow-lg shadow-gray-300' : 'text-gray-400 hover:text-white hover:bg-black' }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span class="absolute left-14 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50 pointer-events-none">
+                    Usuarios
+                </span>
+            </a>
+
+            {# 3. GESTIÓN USUARIOS #}
+            <a href="{{ path('admin_categoria_index') }}"
+               class="group relative flex items-center justify-center w-full h-12 rounded-xl transition-all duration-300
+               {{ current_page == 'usuarios' ? 'bg-black text-white shadow-lg shadow-gray-300' : 'text-gray-400 hover:text-white hover:bg-black' }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span class="absolute left-14 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50 pointer-events-none">
+                    Usuarios
+                </span>
+            </a>
+
+            {# SEPARADOR #}
+            <div class="h-px w-full bg-gray-100 my-2"></div>
+
+            {# 4. VOLVER A LA WEB (Como usuario normal) #}
+            {# Nota: Aquí pondrías app_app, pero lo dejo en # por seguridad #}
+            <a href="#"
+               class="group relative flex items-center justify-center w-full h-12 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all duration-300">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span class="absolute left-14 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50 pointer-events-none">
+                    Ir a Web
+                </span>
+            </a>
+
+        </nav>
+
+        <div class="flex flex-col gap-4 w-full px-4">
+            <a href="{{ path('app_logout') }}" class="group relative flex items-center justify-center w-full h-12 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span class="absolute left-14 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50 pointer-events-none">Salir</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col bg-gray-50/50 h-full relative overflow-hidden">
+
+        <header class="w-full h-24 flex items-center justify-between px-10 py-6 shrink-0 z-10">
+
+            <div class="flex-1 max-w-xl">
+                {# Bloque para título o buscador del admin #}
+                <h1 class="text-2xl font-bold text-gray-800">{% block header_title %}Dashboard{% endblock %}</h1>
+            </div>
+
+            <div class="flex items-center gap-4 ml-4">
+                <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+                    <div class="text-right hidden md:block">
+                        <p class="text-sm font-semibold text-gray-900">{{ app.user.username }}</p>
+                        <p class="text-xs text-yellow-600 font-bold bg-yellow-100 px-2 py-0.5 rounded-full inline-block">
+                            ADMINISTRADOR
+                        </p>
+                    </div>
+                    <div class="h-10 w-10 rounded-full bg-gray-900 text-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm font-bold">
+                        A
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar p-10 pt-4">
+
+            {# Mensajes Flash (Errores/Exito) #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="mb-6 px-4 py-3 rounded-xl border flex items-center gap-3 shadow-sm
+                        {{ label == 'success' ? 'bg-green-100 border-green-200 text-green-800' : 'bg-red-100 border-red-200 text-red-800' }}">
+                        <p class="font-medium text-sm">{{ message }}</p>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </div>
+
+    </main>
+</div>
+</body>
+</html>
