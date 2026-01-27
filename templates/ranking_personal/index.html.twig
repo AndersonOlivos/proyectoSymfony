@@ -2,14 +2,6 @@
 
 {% set current_page = 'rankings' %}
 
-{% set global_top = [
-    { name: 'Ale Galán', percent: 85 },
-    { name: 'Arturo Coello', percent: 82 },
-    { name: 'Juan Lebrón', percent: 75 },
-    { name: 'F. Stupaczuk', percent: 60 },
-    { name: 'Paquito N.', percent: 45 }
-] %}
-
 {% block title %}Participar - {{ datos_ranking.titulo_ranking }}{% endblock %}
 
 {% block body %}
@@ -73,14 +65,14 @@
                 </h3>
 
                 <div class="space-y-4">
-                    {% for player in global_top %}
+                    {% for jugador in top5ranking %}
                         <div class="relative">
                             <div class="flex items-center justify-between text-[11px] font-bold mb-1 z-10 relative">
-                                <span class="text-gray-800">{{ loop.index }}. {{ player.name }}</span>
-                                <span class="text-gray-400">{{ player.percent }}%</span>
+                                <span class="text-gray-800">{{ loop.index }}. {{ jugador.nombre }}</span>
+                                <span class="text-gray-400">{{ jugador.veces_votado | number_format(2) }}%</span>
                             </div>
                             <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-black rounded-full" style="width: {{ player.percent }}%"></div>
+                                <div class="h-full bg-black rounded-full" style="width: {{ jugador.veces_votado | number_format(2) }}%"></div>
                             </div>
                         </div>
                     {% endfor %}

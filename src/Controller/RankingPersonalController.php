@@ -19,6 +19,8 @@ final class RankingPersonalController extends AbstractController
 
         $datos_ranking = $rankingGeneralRepository->obtenerRankingGeneral($id_ranking);
 
+        $top5ranking = $rankingGeneralRepository->obtenerTopXRankingGeneral($id_ranking, 5);
+
         $orden_jugadores = [];
 
         if ($datos_ranking[0]['usuario_participa'] > 0){
@@ -31,6 +33,7 @@ final class RankingPersonalController extends AbstractController
             'datos_ranking' => $datos_ranking[0],
             'orden_jugadores' => $orden_jugadores,
             'jugadores_categoria' => $jugadores_categoria,
+            'top5ranking' => $top5ranking,
         ]);
     }
 }
