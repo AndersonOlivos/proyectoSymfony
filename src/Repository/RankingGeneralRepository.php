@@ -29,28 +29,98 @@ class RankingGeneralRepository extends ServiceEntityRepository
         } else return [];
     }
 
-    //    /**
-    //     * @return RankingGeneral[] Returns an array of RankingGeneral objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function obtenerRankingGenerales(){
 
-    //    public function findOneBySomeField($value): ?RankingGeneral
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = '
+                SELECT
+                rg.id AS id_ranking,
+                rg.titulo AS titulo_ranking,
+                rg.descripcion AS descripcion_ranking,
+                (SELECT
+                    c.nombre
+                FROM categoria c
+                WHERE c.id = rg.id_categoria
+                ) AS nombre_categoria,
+                (
+                SELECT
+                    COUNT(*)
+                FROM
+                    ranking_personal rp
+                WHERE
+                    rp.id_ranking_general = rg.id
+                    AND rp.activo = 1
+                ) AS total_participantes,
+                (
+                SELECT
+                    COUNT(*)
+                FROM
+                    ranking_personal rp
+                WHERE
+                    rp.id_ranking_general = rg.id
+                    AND rp.id_usuario = 1
+                    AND rp.activo = 1
+                ) AS usuario_participa
+                FROM
+                    ranking_general rg
+                WHERE
+                    rg.activo = 1
+                ORDER BY
+                    rg.id DESC ';
+
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function obtenerRankingGeneral(int $id_ranking){
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = '
+                SELECT
+                rg.id AS id_ranking,
+                rg.titulo AS titulo_ranking,
+                rg.descripcion AS descripcion_ranking,
+                (SELECT
+                     c.id
+                FROM categoria c
+                WHERE c.id = rg.id_categoria
+                ) AS id_categoria,
+                (SELECT
+                    c.nombre
+                FROM categoria c
+                WHERE c.id = rg.id_categoria
+                ) AS nombre_categoria,
+                (
+                SELECT
+                    COUNT(*)
+                FROM
+                    ranking_personal rp
+                WHERE
+                    rp.id_ranking_general = rg.id
+                    AND rp.activo = 1
+                ) AS total_participantes,
+                (
+                SELECT
+                    COUNT(*)
+                FROM
+                    ranking_personal rp
+                WHERE
+                    rp.id_ranking_general = rg.id
+                    AND rp.id_usuario = 1
+                    AND rp.activo = 1
+                ) AS usuario_participa
+                FROM
+                    ranking_general rg
+                WHERE
+                    rg.activo = 1
+                AND
+                    rg.id = :id_ranking
+                ORDER BY
+                    rg.id DESC ';
+
+        $resultSet = $conn->executeQuery($sql, ['id_ranking' => $id_ranking]);
+        return $resultSet->fetchAllAssociative();
+    }
 }

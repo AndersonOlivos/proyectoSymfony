@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/admin/categorias')]
 final class AdminCategoriasController extends AbstractController
 {
     #[Route('/', name: 'admin_categoria_index', methods: ['GET'])]
@@ -63,7 +64,7 @@ final class AdminCategoriasController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'admin_categoria_delete', methods: ['POST'])]
+    #[Route('/{id}/eliminar', name: 'admin_categoria_delete', methods: ['POST'])]
     public function delete(Request $request, Categoria $categoria, EntityManagerInterface $entityManager): Response
     {
         // Token CSRF para seguridad (evita borrados accidentales por link)

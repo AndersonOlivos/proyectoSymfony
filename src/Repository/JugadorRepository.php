@@ -16,28 +16,31 @@ class JugadorRepository extends ServiceEntityRepository
         parent::__construct($registry, Jugador::class);
     }
 
-    //    /**
-    //     * @return Jugador[] Returns an array of Jugador objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('j')
-    //            ->andWhere('j.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('j.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function buscarConFiltros(?string $busqueda, int $pagina, int $limite = 10): array
+    {
+        $query = $this->createQueryBuilder('j')
+            ->orderBy('j.nombre', 'ASC');
 
-    //    public function findOneBySomeField($value): ?Jugador
-    //    {
-    //        return $this->createQueryBuilder('j')
-    //            ->andWhere('j.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        // Si hay búsqueda, filtramos
+        if ($busqueda) {
+            $query->andWhere('j.nombre LIKE :val OR j.email LIKE :val')
+                ->setParameter('val', '%' . $busqueda . '%');
+        }
+
+        // Clonamos para contar el total antes de recortar (para la paginación)
+        $totalQuery = clone $query;
+        $total = count($totalQuery->select('j.id')->getQuery()->getResult());
+        $maxPaginas = ceil($total / $limite);
+
+        // Aplicamos la paginación (Offset y Limit)
+        $query->setFirstResult(($pagina - 1) * $limite)
+            ->setMaxResults($limite);
+
+        return [
+            'datos' => $query->getQuery()->getResult(),
+            'total' => $total,
+            'maxPaginas' => $maxPaginas,
+            'paginaActual' => $pagina
+        ];
+    }
 }

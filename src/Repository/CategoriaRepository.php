@@ -34,28 +34,24 @@ class CategoriaRepository extends ServiceEntityRepository
         return $categorias;
     }
 
-    //    /**
-    //     * @return Categoria[] Returns an array of Categoria objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function obtenerJugadoresPorCategoria(int $idCategoria){
+        $conn = $this->getEntityManager()->getConnection();
 
-    //    public function findOneBySomeField($value): ?Categoria
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $sql = '
+            select
+            j.id,
+            j.nombre,
+            j.imagen_url
+            from
+                jugador j,
+                jugador_categoria jc
+            where
+                j.id = jc.id_jugador
+                and j.activo = 1
+                and jc.id_categoria = :idCategoria;
+                ';
+
+        $resultSet = $conn->executeQuery($sql, ['idCategoria' => $idCategoria]);
+        return $resultSet->fetchAllAssociative();
+    }
 }

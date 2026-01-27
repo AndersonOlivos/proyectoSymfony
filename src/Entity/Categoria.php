@@ -19,7 +19,7 @@ class Categoria
     private ?string $nombre = null;
 
     #[ORM\Column]
-    private ?bool $activo = null;
+    private bool $activo = true;
 
     /**
      * @var Collection<int, JugadorCategoria>
@@ -37,6 +37,7 @@ class Categoria
     {
         $this->jugadorCategorias = new ArrayCollection();
         $this->rankingGenerals = new ArrayCollection();
+        $this->activo = true;
     }
 
     public function getId(): ?int

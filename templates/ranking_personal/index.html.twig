@@ -1,0 +1,258 @@
+{% extends 'base_logged.html.twig' %}
+
+{% set current_page = 'rankings' %}
+
+{% set global_top = [
+    { name: 'Ale Galán', percent: 85 },
+    { name: 'Arturo Coello', percent: 82 },
+    { name: 'Juan Lebrón', percent: 75 },
+    { name: 'F. Stupaczuk', percent: 60 },
+    { name: 'Paquito N.', percent: 45 }
+] %}
+
+{% block title %}Participar - {{ datos_ranking.titulo_ranking }}{% endblock %}
+
+{% block body %}
+    <div class="mb-8 border-b border-gray-100 pb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-black text-white text-xs font-bold uppercase px-2 py-1 rounded">{{ datos_ranking.nombre_categoria }}</span>
+                    <span class="text-gray-400 text-xs font-semibold tracking-wide">Ranking Oficial</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ datos_ranking.titulo_ranking }}</h1>
+            </div>
+            <div class="text-right hidden md:block">
+                <p class="text-sm font-bold text-gray-900">Participantes</p>
+                <p class="text-2xl font-black text-gray-900">{{ datos_ranking.total_participantes }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-20">
+
+        <div class="lg:col-span-4 order-1">
+            <div class="bg-black text-white rounded-[30px] p-6 shadow-xl sticky top-6 z-30">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Tu Top 10</h2>
+                    <span id="counter" class="bg-white/20 text-xs px-2 py-1 rounded font-mono">0/10</span>
+                </div>
+
+                <div id="ranking-list" class="space-y-2 mb-6">
+                </div>
+
+                <button id="btn-save" disabled class="w-full bg-white text-gray-300 py-4 rounded-2xl font-bold text-sm transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:bg-green-500 hover:text-white">
+                    Guardar Ranking
+                </button>
+                <p id="msg-save" class="text-[10px] text-center text-gray-500 mt-3">Selecciona 10 jugadores para guardar.</p>
+            </div>
+        </div>
+        <div class="lg:col-span-5 space-y-6 order-2">
+
+            <div class="relative sticky top-0 bg-gray-50 pt-2 pb-4 z-20">
+                <input type="text" id="search-input" placeholder="Buscar candidato..."
+                       class="w-full py-4 pl-12 pr-4 bg-white border-2 border-transparent focus:border-black rounded-2xl shadow-sm text-sm font-medium transition-all outline-none">
+                <svg class="w-5 h-5 text-gray-400 absolute left-4 top-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <div class="flex justify-between items-center px-1">
+                <h3 class="font-bold text-gray-900 text-sm uppercase tracking-wider">Disponibles</h3>
+                <span class="text-xs text-gray-400">Clic en + para añadir</span>
+            </div>
+
+            <div id="candidates-list" class="space-y-3 pb-10">
+            </div>
+        </div>
+
+
+        <div class="lg:col-span-3 order-3">
+            <div class="bg-white rounded-[25px] p-6 shadow-sm border border-gray-100 sticky top-6">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2 text-sm">
+                    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    Lo más votado
+                </h3>
+
+                <div class="space-y-4">
+                    {% for player in global_top %}
+                        <div class="relative">
+                            <div class="flex items-center justify-between text-[11px] font-bold mb-1 z-10 relative">
+                                <span class="text-gray-800">{{ loop.index }}. {{ player.name }}</span>
+                                <span class="text-gray-400">{{ player.percent }}%</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-black rounded-full" style="width: {{ player.percent }}%"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const allCandidates = {{ jugadores_categoria|json_encode|raw }};
+
+        const savedRankingData = {{ orden_jugadores|default([])|json_encode|raw }};
+
+        let selectedPlayers = [];
+        const maxSlots = 10;
+
+        if (savedRankingData && savedRankingData.length > 0) {
+            savedRankingData.forEach(savedItem => {
+
+                let playerIdToFind = savedItem.id;
+
+                if (!allCandidates.find(c => c.id === playerIdToFind)) {
+                    if (savedItem.id_jugador) playerIdToFind = savedItem.id_jugador;
+                    else if (savedItem.jugador_id) playerIdToFind = savedItem.jugador_id;
+                    else if (savedItem.jugador && savedItem.jugador.id) playerIdToFind = savedItem.jugador.id;
+                }
+
+                const playerObj = allCandidates.find(p => p.id === playerIdToFind);
+
+                if (playerObj) {
+                    selectedPlayers.push(playerObj);
+                }
+            });
+        }
+
+        const candidatesContainer = document.getElementById('candidates-list');
+        const rankingContainer = document.getElementById('ranking-list');
+        const counterLabel = document.getElementById('counter');
+        const saveBtn = document.getElementById('btn-save');
+        const msgSave = document.getElementById('msg-save');
+        const searchInput = document.getElementById('search-input');
+
+        function renderCandidates(filterText = '') {
+            candidatesContainer.innerHTML = '';
+
+            const available = allCandidates.filter(p =>
+                !selectedPlayers.find(s => s.id === p.id) &&
+                p.nombre.toLowerCase().includes(filterText.toLowerCase())
+            );
+
+            if (available.length === 0) {
+                candidatesContainer.innerHTML = `<div class="text-center text-gray-400 text-sm py-4">No hay jugadores disponibles</div>`;
+                return;
+            }
+
+            available.forEach(player => {
+                const el = document.createElement('div');
+                el.className = 'bg-white p-3 rounded-2xl flex items-center justify-between border border-gray-100 hover:border-black hover:shadow-md transition-all group cursor-pointer';
+                el.onclick = () => addPlayer(player.id); // Al hacer clic, añadir
+
+                let imgHtml = '';
+                if(player.imagen_url === null || player.imagen_url === ""){
+                    imgHtml = `<img src="https://ui-avatars.com/api/?name='${player.nombre}'&background=random&color=fff&size=16" class="w-10 h-10 rounded-xl object-cover bg-gray-200">`;
+                } else {
+                    imgHtml = `<img src="${player.imagen_url}" class="w-10 h-10 rounded-xl object-cover bg-gray-200">`;
+                }
+
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        ${imgHtml}
+                        <div>
+                            <p class="font-bold text-gray-900 text-sm">${player.nombre}</p>
+                        </div>
+                    </div>
+                    <button class="bg-gray-100 group-hover:bg-black group-hover:text-white text-black p-2 rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    </button>
+                `;
+                candidatesContainer.appendChild(el);
+            });
+        }
+
+        function renderRanking() {
+            rankingContainer.innerHTML = '';
+
+            for (let i = 0; i < maxSlots; i++) {
+                const player = selectedPlayers[i];
+                const div = document.createElement('div');
+
+                if (player) {
+                    div.className = 'flex items-center gap-2 bg-white/10 p-2 rounded-xl border border-white/10 group animate-fade-in-left select-none';
+
+                    let imgHtml = '';
+                    if(player.imagen_url === null || player.imagen_url === ""){
+                        imgHtml = `<img src="https://ui-avatars.com/api/?name='${player.nombre}'&background=random&color=fff&size=16" class="w-10 h-10 rounded-xl object-cover bg-gray-200">`;
+                    } else {
+                        imgHtml = `<img src="${player.imagen_url}" class="w-8 h-8 rounded-full border border-white/30 shrink-0">`;
+                    }
+
+                    div.innerHTML = `
+                        ${imgHtml}
+                        <span class="text-sm font-bold flex-1 truncate text-white">${player.nombre}</span>
+                        <div class="flex items-center gap-1">
+                            ${i > 0 ? `<button onclick="movePlayer(${i}, -1)" class="p-1 hover:bg-white/20 rounded text-gray-400 hover:text-white" title="Subir">↑</button>` : '<span class="w-5"></span>'}
+                            ${i < selectedPlayers.length - 1 ? `<button onclick="movePlayer(${i}, 1)" class="p-1 hover:bg-white/20 rounded text-gray-400 hover:text-white" title="Bajar">↓</button>` : '<span class="w-5"></span>'}
+                            <button onclick="removePlayer(${i})" class="p-1 hover:bg-red-500/20 rounded text-gray-400 hover:text-red-400 ml-1" title="Quitar">✕</button>
+                        </div>
+                    `;
+                } else {
+                    div.className = 'flex items-center gap-3 p-2 rounded-xl border border-dashed border-white/10 text-gray-600';
+                    div.innerHTML = `
+                        <span class="text-xs italic">Vacío</span>
+                    `;
+                }
+                rankingContainer.appendChild(div);
+            }
+
+            counterLabel.innerText = `${selectedPlayers.length}/${maxSlots}`;
+
+            if (selectedPlayers.length >= 3) {
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('text-gray-300');
+                saveBtn.classList.add('text-black');
+                saveBtn.innerText = "¡Guardar Ranking!";
+                msgSave.innerText = "Ranking completo. Listo para enviar.";
+                msgSave.classList.add('text-green-500');
+            } else {
+                saveBtn.disabled = true;
+                saveBtn.classList.add('text-gray-300');
+                saveBtn.innerText = "Guardar Ranking";
+                msgSave.innerText = `Te faltan ${maxSlots - selectedPlayers.length} jugadores.`;
+                msgSave.classList.remove('text-green-500');
+            }
+        }
+
+        window.addPlayer = (id) => {
+            if (selectedPlayers.length >= maxSlots) {
+                alert("¡Ya tienes 10 jugadores! Quita uno antes de añadir otro.");
+                return;
+            }
+            const player = allCandidates.find(p => p.id === id);
+            if (player) {
+                selectedPlayers.push(player);
+                updateUI();
+            }
+        };
+
+        window.removePlayer = (index) => {
+            selectedPlayers.splice(index, 1);
+            updateUI();
+        };
+
+        window.movePlayer = (index, direction) => {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < selectedPlayers.length) {
+                [selectedPlayers[index], selectedPlayers[newIndex]] = [selectedPlayers[newIndex], selectedPlayers[index]];
+                updateUI();
+            }
+        };
+
+        function updateUI() {
+            renderCandidates(searchInput.value);
+            renderRanking();
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderCandidates(e.target.value);
+        });
+
+        updateUI();
+
+    </script>
+
+{% endblock %}

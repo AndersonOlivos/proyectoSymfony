@@ -16,28 +16,30 @@ class OrdenRankingPersonalRepository extends ServiceEntityRepository
         parent::__construct($registry, OrdenRankingPersonal::class);
     }
 
-    //    /**
-    //     * @return OrdenRankingPersonal[] Returns an array of OrdenRankingPersonal objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('o.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function obtenerOrdenRankingPersonal($id_usuario, $id_ranking_general){
+        $conn = $this->getEntityManager()->getConnection();
 
-    //    public function findOneBySomeField($value): ?OrdenRankingPersonal
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $sql = '
+                select
+                id_jugador,
+                posicion
+                from
+                    orden_ranking_personal orp ,
+                    ranking_personal rp,
+                    ranking_general rg
+                where
+                    orp.id_ranking_personal = rp.id
+                    and rp.id_usuario = :id_usuario
+                    and rp.id_ranking_general = (
+                    SELECT
+                        id
+                    from
+                        ranking_general rg2
+                    where
+                        rg2.id = :id_ranking_general)
+                        ';
+
+        $resultSet = $conn->executeQuery($sql, ['id_ranking_general' => $id_ranking_general, 'id_usuario' => $id_usuario]);
+        return $resultSet->fetchAllAssociative();
+    }
 }
