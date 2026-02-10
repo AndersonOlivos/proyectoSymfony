@@ -87,6 +87,8 @@
 
         const savedRankingData = {{ orden_jugadores|default([])|json_encode|raw }};
 
+        const saveUrl = "{{ path('app_ranking_personal_guardar', {'id_ranking': datos_ranking.id_ranking}) }}";
+
         let selectedPlayers = [];
         const maxSlots = 10;
 
@@ -241,6 +243,55 @@
 
         searchInput.addEventListener('input', (e) => {
             renderCandidates(e.target.value);
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            if (selectedPlayers.length < 3) return;
+
+            const originalText = saveBtn.innerText;
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Guardando...";
+            saveBtn.classList.add('opacity-75', 'cursor-wait');
+
+            const payload = {
+                orden: selectedPlayers.map(player => player.id)
+            };
+
+            try {
+                const response = await fetch(saveUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    saveBtn.innerText = "¡Guardado con éxito!";
+                    saveBtn.classList.remove('bg-white', 'text-black');
+                    saveBtn.classList.add('bg-green-500', 'text-white');
+
+                    msgSave.innerText = "Tu ranking ha sido registrado correctamente.";
+                    msgSave.classList.add('text-green-600', 'font-bold');
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                alert("Hubo un problema al intentar guardar el ranking. Inténtalo de nuevo.");
+
+                saveBtn.disabled = false;
+                saveBtn.innerText = originalText;
+                saveBtn.classList.remove('opacity-75', 'cursor-wait');
+            }
         });
 
         updateUI();

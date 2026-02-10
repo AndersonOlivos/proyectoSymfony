@@ -21,18 +21,15 @@ class JugadorRepository extends ServiceEntityRepository
         $query = $this->createQueryBuilder('j')
             ->orderBy('j.nombre', 'ASC');
 
-        // Si hay búsqueda, filtramos
         if ($busqueda) {
             $query->andWhere('j.nombre LIKE :val OR j.email LIKE :val')
                 ->setParameter('val', '%' . $busqueda . '%');
         }
 
-        // Clonamos para contar el total antes de recortar (para la paginación)
         $totalQuery = clone $query;
         $total = count($totalQuery->select('j.id')->getQuery()->getResult());
         $maxPaginas = ceil($total / $limite);
 
-        // Aplicamos la paginación (Offset y Limit)
         $query->setFirstResult(($pagina - 1) * $limite)
             ->setMaxResults($limite);
 
@@ -43,4 +40,20 @@ class JugadorRepository extends ServiceEntityRepository
             'paginaActual' => $pagina
         ];
     }
+
+    public function obtenerDatosJugadoresCategoria(){
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = '
+            select j.id, j.nombre, j.puntos
+            from jugador j
+            where j.activo = true
+            order by j.puntos desc;
+            ';
+
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAllAssociative();
+    }
+
 }

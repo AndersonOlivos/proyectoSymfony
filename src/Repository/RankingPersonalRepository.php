@@ -15,4 +15,6 @@ class RankingPersonalRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, RankingPersonal::class);
     }
+
+
 }

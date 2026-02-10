@@ -37,6 +37,7 @@ class OrdenRankingPersonalRepository extends ServiceEntityRepository
                         ranking_general rg2
                     where
                         rg2.id = :id_ranking_general)
+                    and rp.activo = true
                         ';
 
         $resultSet = $conn->executeQuery($sql, ['id_ranking_general' => $id_ranking_general, 'id_usuario' => $id_usuario]);

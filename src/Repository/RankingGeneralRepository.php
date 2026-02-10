@@ -20,8 +20,10 @@ class RankingGeneralRepository extends ServiceEntityRepository
 
         $rankingGenerales = [];
 
-        foreach($categorias as $categoria){
-            $rankingGenerales[] = $this -> findOneBy(['categoria' => $categoria->getId(), 'activo' => true]);
+        if($categorias != null && $categorias->count() > 0 ){
+            foreach($categorias as $categoria){
+                $rankingGenerales[] = $this -> findOneBy(['categoria' => $categoria->getId(), 'activo' => true]);
+            }
         }
 
         if(count($rankingGenerales) > 0 && $rankingGenerales[0] != null){

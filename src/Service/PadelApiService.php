@@ -76,7 +76,7 @@ class PadelApiService
                 }
 
                 //Side
-                $lado = $p['side'] ?? 'Desconocido';
+                $lado = $p['side'] ?? '---';
 
                 $jugadores[] = [
                     'id' => $this->jugadorRepository->findOneBy(['idApi' => $p['id']])->getId(),
