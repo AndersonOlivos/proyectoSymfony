@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Jugador;
-use App\Form\JugadorType;
 use App\Repository\JugadorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,70 +16,54 @@ class AdminJugadoresController extends AbstractController
     #[Route('/', name: 'admin_jugador_index', methods: ['GET'])]
     public function index(Request $request, JugadorRepository $jugadorRepository): Response
     {
-        // Obtener parámetros de la URL (busqueda y pagina)
-        $busqueda = $request->query->get('q');
-        $pagina = $request->query->getInt('page', 1);
-
-        // Llamamos a nuestro método personalizado del repositorio
-        $resultado = $jugadorRepository->buscarConFiltros($busqueda, $pagina);
+        $jugadores = $jugadorRepository->findAll();
 
         return $this->render('admin/jugadores/index.html.twig', [
-            'jugadores' => $resultado['datos'],
-            'maxPaginas' => $resultado['maxPaginas'],
-            'paginaActual' => $resultado['paginaActual'],
-            'busqueda' => $busqueda,
-            'total' => $resultado['total']
+            'jugadores' => $jugadores
         ]);
     }
 
-    #[Route('/new', name: 'admin_jugador_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/editar', name: 'admin_jugador_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Jugador $jugador,
+                         EntityManagerInterface $entityManager): Response
     {
-        $jugador = new Jugador();
-        $jugador->setActivo(true); // Por defecto activo
-        $form = $this->createForm(JugadorType::class, $jugador);
-        $form->handleRequest($request);
+        $nombre = $request->request->get('nombre');
+        $sexo = $request->request->get('sexo');
+        $puntos = $request->request->get('puntos');
+        $altura = $request->request->get('altura');
+        $imagen = $request->request->get('imagen_url');
+        $esActivo = $request->request->get('activo') == '1';
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($jugador);
-            $entityManager->flush();
+        $jugador->setNombre($nombre);
+        $jugador->setSexo($sexo);
+        $jugador->setPuntos($puntos);
+        $jugador->setAltura($altura);
+        $jugador->setImagenUrl($imagen);
+        $jugador->setActivo($esActivo);
 
-            return $this->redirectToRoute('admin_jugador_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $entityManager->persist($jugador);
+        $entityManager->flush();
+        $this->addFlash('success', 'Jugador modificado correctamente');
 
-        return $this->render('admin/jugador/new.html.twig', [
-            'jugador' => $jugador,
-            'form' => $form->createView(),
-        ]);
+        return $this->redirectToRoute('admin_jugador_index');
     }
 
-    #[Route('/{id}/edit', name: 'admin_jugador_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Jugador $jugador, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/eliminar', name: 'admin_jugador_delete', methods: ['POST'])]
+    public function delete(Request $request,
+                           Jugador $jugador,
+                           EntityManagerInterface $entityManager,
+                           JugadorRepository $jugadorRepository): Response
     {
-        $form = $this->createForm(JugadorType::class, $jugador);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            return $this->redirectToRoute('admin_jugador_index', [], Response::HTTP_SEE_OTHER);
+        if($jugadorRepository->noPuedeEliminarse($jugador->getId())['existe']){
+            $this->addFlash('error', 'No se puede eliminar jugador. Existe alguna valoración o ranking.');
+            return $this->redirectToRoute('admin_jugador_index');
         }
 
-        return $this->render('admin/jugador/edit.html.twig', [
-            'jugador' => $jugador,
-            'form' => $form->createView(),
-        ]);
-    }
+        $entityManager->remove($jugador);
+        $entityManager->flush();
 
-    // SOFT DELETE: No borra, solo cambia el estado
-    #[Route('/{id}/toggle-status', name: 'admin_jugador_toggle', methods: ['POST'])]
-    public function toggleStatus(Request $request, Jugador $jugador, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('toggle'.$jugador->getId(), $request->request->get('_token'))) {
-            // Invierte el estado: Si es true pasa a false, y viceversa
-            $jugador->setActivo(!$jugador->isActivo());
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('admin_jugador_index', [], Response::HTTP_SEE_OTHER);
+        $this->addFlash('success', 'Jugador eliminado correctamente');
+        return $this->redirectToRoute('admin_jugador_index');
     }
 }

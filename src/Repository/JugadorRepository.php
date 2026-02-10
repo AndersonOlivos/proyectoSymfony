@@ -56,4 +56,24 @@ class JugadorRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
+    public function noPuedeEliminarse(int $idJugador){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+            select ((select (count(jf.id) > 0) as existe_favorito
+            from jugadores_favoritos jf
+            where jf.id = :idJugador)
+            or (
+            select (count(orp.id_jugador) > 0) as existe_ranking
+            from orden_ranking_personal orp
+            where orp.id_jugador = :idJugador
+            )
+            or (
+            select (count(r.id_jugador) >0) as existe_valoracion
+            from review r
+            where r.id_jugador = :idJugador
+            )) as existe';
+        $resultSet = $conn->executeQuery($sql, ['idJugador' => $idJugador]);
+        return $resultSet->fetchAssociative();
+    }
+
 }

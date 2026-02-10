@@ -16,28 +16,17 @@ class UsuarioRepository extends ServiceEntityRepository
         parent::__construct($registry, Usuario::class);
     }
 
-        /**
-         * @return Usuario[] Returns an array of Usuario objects
-         */
-        public function findByExampleField($value): array
-        {
-            return $this->createQueryBuilder('u')
-                ->andWhere('u.exampleField = :val')
-                ->setParameter('val', $value)
-                ->orderBy('u.id', 'ASC')
-                ->setMaxResults(10)
-                ->getQuery()
-                ->getResult()
-            ;
-        }
 
-        public function findOneBySomeField($value): ?Usuario
-        {
-            return $this->createQueryBuilder('u')
-                ->andWhere('u.exampleField = :val')
-                ->setParameter('val', $value)
-                ->getQuery()
-                ->getOneOrNullResult()
-            ;
-        }
+    public function obtenerDatosUsuarios(){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+            select u.username, u.email, u.rol, u.activo, count(r.id) reviews_hechas
+            from usuario u
+            join review r on r.id_usuario = u.id
+            group by u.username, u.email, u.rol, u.activo;
+            ';
+
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAllAssociative();
+    }
 }

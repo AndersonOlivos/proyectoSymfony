@@ -1,42 +1,6 @@
 {% extends 'base_logged.html.twig' %}
 {% set current_page = 'rankings'%}
 
-{# --- MOCK DATA: Sin imágenes, solo datos --- #}
-{% set rankings = [
-    {
-        id: 1,
-        title: 'Los Reyes del Smash 2024',
-        description: 'Elige a los 10 jugadores con el remate más potente del circuito actual.',
-        category: 'Potencia',
-        participants: 342,
-        is_completed: false
-    },
-    {
-        id: 2,
-        title: 'Muralla Defensiva',
-        description: '¿Quiénes son imposibles de batir? Premia a los mejores defensores.',
-        category: 'Defensa',
-        participants: 128,
-        is_completed: true
-    },
-    {
-        id: 3,
-        title: 'Mejores Revés del Mundo',
-        description: 'Ranking exclusivo para los jugadores que dominan el lado izquierdo.',
-        category: 'Posición',
-        participants: 890,
-        is_completed: false
-    },
-    {
-        id: 4,
-        title: 'Magia y Talento',
-        description: 'Esos jugadores que hacen cosas que nadie más puede imaginar.',
-        category: 'Técnica',
-        participants: 560,
-        is_completed: true
-    }
-] %}
-
 {% block title %}Rankings Oficiales{% endblock %}
 
 {% block body %}
@@ -53,22 +17,24 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </span>
-            <input type="text" placeholder="Buscar ranking..." class="w-full py-3 pl-12 pr-4 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black transition-all">
+            <input type="text" id="searchInput" placeholder="Buscar ranking..." class="w-full py-3 pl-12 pr-4 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black transition-all">
         </div>
 
         <div class="flex bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
-            <button class="px-5 py-2 bg-gray-100 text-black text-xs font-bold rounded-lg transition-all">Todos</button>
-            <button class="px-5 py-2 text-gray-500 hover:text-black text-xs font-medium rounded-lg transition-all">Pendientes</button>
-            <button class="px-5 py-2 text-gray-500 hover:text-black text-xs font-medium rounded-lg transition-all">Completados</button>
+            <button onclick="filterRankings('all')" id="btn-all" class="filter-btn px-5 py-2 bg-black text-white text-xs font-bold rounded-lg transition-all">Todos</button>
+            <button onclick="filterRankings('pending')" id="btn-pending" class="filter-btn px-5 py-2 text-gray-500 hover:text-black text-xs font-medium rounded-lg transition-all">Pendientes</button>
+            <button onclick="filterRankings('completed')" id="btn-completed" class="filter-btn px-5 py-2 text-gray-500 hover:text-black text-xs font-medium rounded-lg transition-all">Completados</button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="rankingsContainer">
 
         {% for ranking in rankings_generales %}
 
             {% if ranking.usuario_participa > 0 %}
-                <div class="relative flex flex-col justify-between bg-green-50/40 border-2 border-green-500 p-7 rounded-[25px] hover:shadow-lg transition-all group">
+                <div class="ranking-card relative flex flex-col justify-between bg-green-50/40 border-2 border-green-500 p-7 rounded-[25px] hover:shadow-lg transition-all group"
+                     data-title="{{ ranking.titulo_ranking|lower }}"
+                     data-status="completed">
 
                     <div class="flex justify-between items-start mb-4">
                         <span class="bg-white text-green-700 border border-green-200 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded">
@@ -89,14 +55,16 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                             {{ ranking.total_participantes }} votos
                         </span>
-                            <a href="{{ path('app_ranking_personal', {'id_ranking': ranking.id_ranking}) }}">
+                        <a href="{{ path('app_ranking_personal', {'id_ranking': ranking.id_ranking}) }}">
                             <span class="text-sm font-bold text-green-700 hover:underline cursor-pointer">Ver mi Top 10 →</span>
                         </a>
                     </div>
                 </div>
 
             {% else %}
-                <div class="relative flex flex-col justify-between bg-white border border-gray-200 p-7 rounded-[25px] hover:border-black hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                <div class="ranking-card relative flex flex-col justify-between bg-white border border-gray-200 p-7 rounded-[25px] hover:border-black hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                     data-title="{{ ranking.titulo_ranking|lower }}"
+                     data-status="pending">
 
                     <div class="flex justify-between items-start mb-4">
                         <span class="bg-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded group-hover:bg-black group-hover:text-white transition-colors">
@@ -115,7 +83,7 @@
                             {{ ranking.total_participantes }} participan
                         </span>
                         <a href="{{ path('app_ranking_personal', {'id_ranking': ranking.id_ranking}) }}" class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md hover:bg-gray-800 transition-colors">
-                                Participar
+                            Participar
                         </a>
                     </div>
                 </div>
@@ -123,5 +91,62 @@
 
         {% endfor %}
     </div>
+
+    <script>
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        const searchInput = document.getElementById('searchInput');
+        const cards = document.querySelectorAll('.ranking-card');
+        const buttons = {
+            'all': document.getElementById('btn-all'),
+            'pending': document.getElementById('btn-pending'),
+            'completed': document.getElementById('btn-completed')
+        };
+
+        const activeClass = ['bg-black', 'text-white', 'font-bold'];
+        const inactiveClass = ['text-gray-500', 'font-medium'];
+
+        function applyFilters() {
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title');
+                const status = card.getAttribute('data-status');
+
+                const matchesSearch = title.includes(currentSearch);
+
+                const matchesFilter = (currentFilter === 'all') || (currentFilter === status);
+
+                if (matchesSearch && matchesFilter) {
+                    card.style.display = 'flex'; // Usamos flex porque las tarjetas son flex
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value.toLowerCase();
+            applyFilters();
+        });
+
+        function filterRankings(filterType) {
+            currentFilter = filterType;
+
+            Object.keys(buttons).forEach(key => {
+                const btn = buttons[key];
+                if (key === filterType) {
+                    btn.classList.add(...activeClass);
+                    btn.classList.remove('text-gray-500', 'font-medium', 'hover:text-black', 'bg-gray-100');
+                    btn.classList.remove('bg-gray-100'); // Por si acaso
+                } else {
+                    btn.classList.remove(...activeClass);
+                    btn.classList.add(...inactiveClass);
+                    btn.classList.add('hover:text-black');
+                }
+            });
+
+            applyFilters();
+        }
+    </script>
 
 {% endblock %}

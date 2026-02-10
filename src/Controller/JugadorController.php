@@ -38,7 +38,7 @@ final class JugadorController extends AbstractController
         $reviews = $reviewRepository -> obtenerAllReviewsJugador($id);
         $mediaReviews = $reviewRepository -> obtenerMediaReviews($id);
         $categorias = $categoriaRepository -> obtenerCategoriasJugador($id);
-        $rankingsGenerales = $rankingGeneralesRepository -> obtenerRankingGeneralesJugador($categorias);
+        $rankingsGenerales = $rankingGeneralesRepository -> obtenerRankingGeneralesJugador($id);
         $esFavorito = false;
 
         $jugadorFavorito = $jugadoresFavoritosRepository -> findOneBy([

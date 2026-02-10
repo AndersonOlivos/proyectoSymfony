@@ -16,19 +16,18 @@ class RankingGeneralRepository extends ServiceEntityRepository
         parent::__construct($registry, RankingGeneral::class);
     }
 
-    public function obtenerRankingGeneralesJugador($categorias){
+    public function obtenerRankingGeneralesJugador(int $idJugador){
 
-        $rankingGenerales = [];
+        $conn = $this->getEntityManager()->getConnection();
 
-        if($categorias != null && $categorias->count() > 0 ){
-            foreach($categorias as $categoria){
-                $rankingGenerales[] = $this -> findOneBy(['categoria' => $categoria->getId(), 'activo' => true]);
-            }
-        }
+        $sql = 'select rg.id, rg.titulo, rg.descripcion
+            from ranking_general rg
+            join categoria c on rg.id_categoria = c.id
+            join jugador_categoria jc on jc.id_categoria = c.id
+            where jc.id_jugador = :idJugador';
 
-        if(count($rankingGenerales) > 0 && $rankingGenerales[0] != null){
-            return $rankingGenerales;
-        } else return [];
+        $resultSet = $conn->executeQuery($sql, ['idJugador' => $idJugador]);
+        return $resultSet->fetchAllAssociative();
     }
 
     public function obtenerRankingGenerales(){
@@ -162,5 +161,18 @@ class RankingGeneralRepository extends ServiceEntityRepository
             }        }
 
         return $topx;
+    }
+
+    public function obtenerDatosRankingGenerales(){
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = '
+            select rg.id, rg.titulo, rg.descripcion, rg.activo, c.id as categoria_id, c.nombre as categoria_nombre
+            from ranking_general rg
+            join categoria c on rg.id_categoria = c.id;
+            ';
+
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAllAssociative();
     }
 }

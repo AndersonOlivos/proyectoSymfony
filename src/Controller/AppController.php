@@ -26,14 +26,11 @@ final class AppController extends AbstractController
         $query = $request->query->get('q', '');
 
         if (empty($query)) {
-            // Si borran el buscador, devolvemos los top 20 de nuevo
             $jugadores = $padelApiService->getJugadoresTopRanking(20);
         } else {
-            // Si hay texto, buscamos
             $jugadores = $padelApiService->buscarJugadores($query);
         }
 
-        // Renderizamos SOLO el trozo de la lista, no toda la página
         return $this->render('app/_lista_jugadores.html.twig', [
             'jugadores' => $jugadores
         ]);

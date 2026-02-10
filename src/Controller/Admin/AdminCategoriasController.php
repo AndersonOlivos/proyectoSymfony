@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\Categoria;
 use App\Entity\JugadorCategoria;
-use App\Form\CategoriaType;
 use App\Repository\CategoriaRepository;
 use App\Repository\JugadorCategoriaRepository;
 use App\Repository\JugadorRepository;
@@ -94,7 +93,7 @@ final class AdminCategoriasController extends AbstractController
                            JugadorCategoriaRepository $jugadorCategoriaRepository,
                            CategoriaRepository $categoriaRepository): Response
     {
-        if($categoriaRepository->existeRankingPersonalDeCategoria($categoria->getId())){
+        if($categoriaRepository->existeRankingPersonalDeCategoria($categoria->getId())['existe']){
             $this->addFlash('error', 'No se puede eliminar la categoría. Ya existen rankings con esta categoria');
             return $this->redirectToRoute('admin_categoria_index');
         }

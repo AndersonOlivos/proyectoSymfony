@@ -20,17 +20,15 @@ class CategoriaRepository extends ServiceEntityRepository
     }
 
     public function obtenerCategoriasJugador(int $id){
-        $idCategorias = $this->jugadorCategoriaRepository->obtenerIdCategoriasJugador($id);
-        $categorias = [];
-        if(!empty($idCategorias)){
-            foreach ($idCategorias as $idCategoria){
-                $categorias[] = $this->findOneBy([
-                    'id' => $idCategoria,
-                    'activo' => true
-                ]);
-            }
-        }
-        return $categorias;
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+        select c.nombre
+        from categoria c
+        join jugador_categoria jc on c.id = jc.id_categoria
+        where jc.id_jugador = :idJugador;
+            ';
+        $resultSet = $conn->executeQuery($sql, ['idJugador' => $id]);
+        return $resultSet->fetchAllAssociative();
     }
 
     public function obtenerJugadoresPorCategoria(int $idCategoria){
@@ -77,8 +75,8 @@ class CategoriaRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $sql = '
         select (count(c.id) > 0) as existe from categoria c
-        left join ranking_general rg on c.id = rg.id_categoria
-        left join ranking_personal rp on rg.id = rp.id_ranking_general
+        join ranking_general rg on c.id = rg.id_categoria
+        join ranking_personal rp on rg.id = rp.id_ranking_general
         where c.id = :idCategoria';
 
         $resultSet = $conn->executeQuery($sql, ['idCategoria' => $categoria]);

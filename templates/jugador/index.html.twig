@@ -135,8 +135,10 @@
                             {% for rankingGeneral in rankingsGenerales %}
                                 {% set page = ((loop.index0 / items_per_page)|round(0, 'floor')) + 1 %}
 
-                                <div class="ranking-item bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-5 hover:bg-white/20 transition-all cursor-pointer group {{ page > 1 ? 'hidden' : '' }}"
-                                     data-page="{{ page }}">
+                                <a href="{{ path('app_ranking_personal', {'id_ranking': rankingGeneral.id }) }}"
+                                   class="block ranking-item bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-5 hover:bg-white/20 transition-all cursor-pointer group {{ page > 1 ? 'hidden' : '' }}"
+                                   data-page="{{ page }}">
+
                                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
@@ -145,11 +147,12 @@
                                             </div>
                                             <p class="text-gray-300 text-xs md:text-sm">{{ rankingGeneral.descripcion ?? 'Desconocido' }}</p>
                                         </div>
-                                        <button class="shrink-0 bg-white text-black px-5 py-2.5 rounded-xl text-xs font-bold uppercase hover:bg-gray-200 transition-colors">
+
+                                        <span class="shrink-0 bg-white text-center text-black px-5 py-2.5 rounded-xl text-xs font-bold uppercase hover:bg-gray-200 transition-colors">
                                             Crear Top 10
-                                        </button>
+                                        </span>
                                     </div>
-                                </div>
+                                </a>
                             {% endfor %}
                         {% else %}
                             <div class="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">

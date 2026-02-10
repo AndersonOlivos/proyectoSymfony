@@ -20,27 +20,12 @@ class OrdenRankingPersonalRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
 
         $sql = '
-                select
-                id_jugador,
-                posicion
-                from
-                    orden_ranking_personal orp ,
-                    ranking_personal rp,
-                    ranking_general rg
-                where
-                    orp.id_ranking_personal = rp.id
-                    and rp.id_usuario = :id_usuario
-                    and rp.id_ranking_general = (
-                    SELECT
-                        id
-                    from
-                        ranking_general rg2
-                    where
-                        rg2.id = :id_ranking_general)
-                    and rp.activo = true
-                        ';
+                select orp.id_jugador, orp.posicion from orden_ranking_personal orp
+                join ranking_personal rp on orp.id_ranking_personal = rp.id
+                where rp.id_usuario = :idUsuario and rp.id_ranking_general = :idRankingGeneral
+                and rp.activo = true';
 
-        $resultSet = $conn->executeQuery($sql, ['id_ranking_general' => $id_ranking_general, 'id_usuario' => $id_usuario]);
+        $resultSet = $conn->executeQuery($sql, ['idRankingGeneral' => $id_ranking_general, 'idUsuario' => $id_usuario]);
         return $resultSet->fetchAllAssociative();
     }
 }
