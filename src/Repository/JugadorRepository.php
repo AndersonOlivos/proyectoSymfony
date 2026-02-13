@@ -76,4 +76,20 @@ class JugadorRepository extends ServiceEntityRepository
         return $resultSet->fetchAssociative();
     }
 
+    public function numeroJugadoresRegistrados(){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select count(*) as numeroJugadoresRegistrados from jugador j';
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAssociative();
+    }
+
+    public function nombreJugadorMasVotado(){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select j.nombre, count(j.nombre) as vecesVotado from review r
+        join jugador j on r.id_jugador = j.id
+        group by j.nombre order by vecesVotado desc limit 1';
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAssociative();
+    }
+
 }

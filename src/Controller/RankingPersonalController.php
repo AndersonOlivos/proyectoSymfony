@@ -24,7 +24,7 @@ final class RankingPersonalController extends AbstractController
                             CategoriaRepository $categoriaRepository): Response
     {
 
-        $datos_ranking = $rankingGeneralRepository->obtenerRankingGeneral($id_ranking);
+        $datos_ranking = $rankingGeneralRepository->obtenerRankingGeneral($id_ranking, $this->getUser()->getId());
 
         $top5ranking = $rankingGeneralRepository->obtenerTopXRankingGeneral($id_ranking, 5);
 

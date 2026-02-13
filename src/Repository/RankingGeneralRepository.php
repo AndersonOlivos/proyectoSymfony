@@ -74,7 +74,7 @@ class RankingGeneralRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
-    public function obtenerRankingGeneral(int $id_ranking){
+    public function obtenerRankingGeneral(int $id_ranking, int $id_usuario){
 
         $conn = $this->getEntityManager()->getConnection();
 
@@ -109,7 +109,7 @@ class RankingGeneralRepository extends ServiceEntityRepository
                     ranking_personal rp
                 WHERE
                     rp.id_ranking_general = rg.id
-                    AND rp.id_usuario = 1
+                    AND rp.id_usuario = :id_usuario
                     AND rp.activo = 1
                 ) AS usuario_participa
                 FROM
@@ -121,7 +121,7 @@ class RankingGeneralRepository extends ServiceEntityRepository
                 ORDER BY
                     rg.id DESC ';
 
-        $resultSet = $conn->executeQuery($sql, ['id_ranking' => $id_ranking]);
+        $resultSet = $conn->executeQuery($sql, ['id_ranking' => $id_ranking, 'id_usuario' => $id_usuario]);
         return $resultSet->fetchAllAssociative();
     }
 
@@ -172,6 +172,24 @@ class RankingGeneralRepository extends ServiceEntityRepository
             join categoria c on rg.id_categoria = c.id;
             ';
 
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function numeroRankingsActivos(){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+        select count(*) as numeroRankingsActivos from ranking_general rg where rg.activo = 1;
+        ';
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAssociative();
+    }
+    public function rankingsMasActivos(){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select rg.titulo,c.nombre,count(rp.id) as votos from ranking_general rg
+                join ranking_personal rp on rg.id = rp.id_ranking_general
+                join categoria c on c.id = rg.id_categoria
+                group by rg.titulo, c.nombre order by votos desc';
         $resultSet = $conn->executeQuery($sql);
         return $resultSet->fetchAllAssociative();
     }

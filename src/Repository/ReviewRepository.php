@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Review;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -47,5 +48,36 @@ class ReviewRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
 
         return $media ? (float) round($media, 1) : 0.0;
+    }
+
+    public function valoracionesTotales(){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select count(*) as numeroValoracionesTotales from review r';
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAssociative();
+    }
+
+    public function jugadoresMejorValoracion(int $limit){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select j.nombre,
+                j.imagen_url as imagenUrl,
+                j.puntos,
+                count(r.id) as numVotos,
+                round(sum(r.puntuacion)/count(r.id),2) as notaMedia
+                from review r join jugador j on r.id_jugador = j.id
+                group by j.nombre, j.imagen_url, j.puntos order by notaMedia desc limit :limit';
+        $resultSet = $conn->executeQuery($sql,['limit'=>$limit],['limit'=>ParameterType::INTEGER]);
+        return $resultSet->fetchAllAssociative();
+    }
+
+    public function resumenRapido(){
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'select (select count( distinct u.id) from usuario u
+                join review r on r.id_usuario = u.id)
+                as usuariosHanVotado,
+                (select round(sum(r.puntuacion)/count(r.id),1) from review r)
+                as mediaGlobalNotas';
+        $resultSet = $conn->executeQuery($sql);
+        return $resultSet->fetchAssociative();
     }
 }

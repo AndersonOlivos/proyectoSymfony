@@ -86,16 +86,4 @@ class JugadorService{
         }
 
     }
-
-    public function obtenerCategorias(int $idJugador){
-
-    }
-
-    public function obtenerValoraciones(int $idJugador){
-
-    }
-
-    public function obtenerRankings(int $idJugador){
-
-    }
 }
