@@ -30,7 +30,7 @@ class RankingGeneralRepository extends ServiceEntityRepository
         return $resultSet->fetchAllAssociative();
     }
 
-    public function obtenerRankingGenerales(){
+    public function obtenerRankingGenerales(int $idUsuario){
 
         $conn = $this->getEntityManager()->getConnection();
 
@@ -60,7 +60,7 @@ class RankingGeneralRepository extends ServiceEntityRepository
                     ranking_personal rp
                 WHERE
                     rp.id_ranking_general = rg.id
-                    AND rp.id_usuario = 1
+                    AND rp.id_usuario = :idUsuario
                     AND rp.activo = 1
                 ) AS usuario_participa
                 FROM
@@ -70,7 +70,7 @@ class RankingGeneralRepository extends ServiceEntityRepository
                 ORDER BY
                     rg.id DESC ';
 
-        $resultSet = $conn->executeQuery($sql);
+        $resultSet = $conn->executeQuery($sql, ['idUsuario' => $idUsuario]);
         return $resultSet->fetchAllAssociative();
     }
 

@@ -93,6 +93,12 @@ final class AdminCategoriasController extends AbstractController
                            JugadorCategoriaRepository $jugadorCategoriaRepository,
                            CategoriaRepository $categoriaRepository): Response
     {
+
+        if($categoria->getRankingGenerals()->count() > 0){
+            $this->addFlash('error', 'No se puede eliminar la categoría. Existe un ranking general asociado a esta categoría');
+            return $this->redirectToRoute('admin_categoria_index');
+        }
+
         if($categoriaRepository->existeRankingPersonalDeCategoria($categoria->getId())['existe']){
             $this->addFlash('error', 'No se puede eliminar la categoría. Ya existen rankings con esta categoria');
             return $this->redirectToRoute('admin_categoria_index');

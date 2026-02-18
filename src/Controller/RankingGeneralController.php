@@ -14,7 +14,7 @@ final class RankingGeneralController extends AbstractController
     public function index(RankingGeneralRepository $rankingGeneralRepository): Response
     {
 
-        $rankingsGenerales = $rankingGeneralRepository->obtenerRankingGenerales();
+        $rankingsGenerales = $rankingGeneralRepository->obtenerRankingGenerales($this->getUser()->getId());
 
         return $this->render('ranking_general/index.html.twig', [
             'rankings_generales' => $rankingsGenerales,

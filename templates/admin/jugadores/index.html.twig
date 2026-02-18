@@ -25,7 +25,6 @@
                 <th class="px-6 py-4 text-center">Datos</th>
                 <th class="px-6 py-4 text-center">Puntos</th>
                 <th class="px-6 py-4 text-center">Estado</th>
-                <th class="px-6 py-4 text-right">Acciones</th>
             </tr>
             </thead>
             <tbody class="divide-y divide-gray-100" id="tablaJugadoresBody">
@@ -76,188 +75,13 @@
                             </span>
                         {% endif %}
                     </td>
-
-                    <td class="px-6 py-4 text-right flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity items-center h-full pt-6">
-                        <button
-                            onclick="abrirModalEditar(this)"
-                            data-id="{{ jugador.id }}"
-                            data-id-api="{{ jugador.idApi }}"
-                            data-nombre="{{ jugador.nombre }}"
-                            data-sexo="{{ jugador.sexo }}"
-                            data-altura="{{ jugador.altura }}"
-                            data-puntos="{{ jugador.puntos }}"
-                            data-imagen="{{ jugador.imagenUrl }}"
-                            data-activo="{{ jugador.activo ? 1 : 0 }}"
-                            class="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
-                            title="Editar"
-                        >
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                        </button>
-                        <button
-                            class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                            title="Eliminar"
-                            onclick="confirmarEliminar('{{ jugador.id }}', '{{ jugador.nombre }}')"
-                        >
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <div id="jugadorModal" class="hidden fixed inset-0 z-50 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden transform transition-all">
-
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-between items-center border-b border-gray-100">
-                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Nuevo Jugador</h3>
-                <button type="button" onclick="toggleModal('jugadorModal')" class="text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-full p-1 transition-colors">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <form action="{{ path('admin_jugador_edit', {'id': 0}) }}" method="POST" id="formJugador">
-                <div class="p-6 space-y-4">
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2">
-                            <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre Completo</label>
-                            <input type="text" name="nombre" id="nombre" required
-                                   class="mt-1 block w-full border border-gray-200 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                   placeholder="Ej: Juan Galán">
-                        </div>
-
-                        <div>
-                            <label for="id_api" class="block text-sm font-medium text-gray-700">ID API Externa</label>
-                            <input type="number" name="id_api" id="id_api"
-                                   class="mt-1 block w-full border border-gray-200 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm read-only:bg-gray-100 read-only:text-gray-500"
-                                   placeholder="Ej: 10543">
-                        </div>
-
-                        <div>
-                            <label for="sexo" class="block text-sm font-medium text-gray-700">Sexo</label>
-                            <select name="sexo" id="sexo" required
-                                    class="mt-1 block w-full border border-gray-200 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white">
-                                <option value="men">Hombre (Men)</option>
-                                <option value="women">Mujer (Women)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label for="puntos" class="block text-sm font-medium text-gray-700">Puntos</label>
-                            <input type="number" name="puntos" id="puntos" value="0" required
-                                   class="mt-1 block w-full border border-gray-200 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-
-                        <div>
-                            <label for="altura" class="block text-sm font-medium text-gray-700">Altura (metros)</label>
-                            <input type="number" step="0.01" name="altura" id="altura"
-                                   class="mt-1 block w-full border border-gray-200 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                   placeholder="Ej: 1.85">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="imagen_url" class="block text-sm font-medium text-gray-700">URL Imagen (Opcional)</label>
-                        <input type="text" name="imagen_url" id="imagen_url"
-                               class="mt-1 block w-full border border-gray-200 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                               placeholder="https://...">
-                    </div>
-
-                    <div class="flex items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <input type="hidden" name="activo" value="0">
-                        <input id="activo" name="activo" value="1" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
-                        <label for="activo" class="ml-2 block text-sm text-gray-900 font-medium">
-                            Jugador Activo
-                        </label>
-                    </div>
-
-                </div>
-
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-gray-100">
-                    <button type="button" onclick="toggleModal('jugadorModal')" class="w-full sm:w-auto inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:text-sm transition-colors">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:text-sm transition-colors">
-                        Guardar Jugador
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="deleteModal" class="hidden fixed inset-0 z-50 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 overflow-hidden transform transition-all p-6 text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            </div>
-            <h3 class="text-lg leading-6 font-bold text-gray-900 mb-2">¿Eliminar Jugador?</h3>
-            <p class="text-sm text-gray-500 mb-6">
-                Vas a eliminar a <span id="nombreJugadorEliminar" class="font-bold text-gray-800"></span>.
-                Esta acción no se puede deshacer.
-            </p>
-            <div class="flex justify-center gap-3">
-                <button type="button" onclick="toggleModal('deleteModal')" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm transition-colors">Cancelar</button>
-                <form id="formEliminar" method="POST" action="">
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm shadow-sm transition-colors">Sí, Eliminar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
-        const urlEditarBase = "{{ path('admin_jugador_edit', {'id': 0}) }}";
-        const urlEliminarBase = "{{ path('admin_jugador_delete', {'id': 0}) }}";
-
-        function toggleModal(modalID) {
-            const modal = document.getElementById(modalID);
-            const body = document.body;
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                body.style.overflow = 'hidden';
-            } else {
-                modal.classList.add('hidden');
-                body.style.overflow = 'auto';
-            }
-        }
-
-        function abrirModalEditar(boton) {
-            const id = boton.dataset.id;
-            const idApi = boton.dataset.idApi;
-            const nombre = boton.dataset.nombre;
-            const sexo = boton.dataset.sexo;
-            const altura = boton.dataset.altura;
-            const puntos = boton.dataset.puntos;
-            const imagen = boton.dataset.imagen;
-            const activo = boton.dataset.activo;
-
-            document.getElementById('modal-title').innerText = "Editar Jugador";
-            document.getElementById('nombre').value = nombre;
-            document.getElementById('id_api').value = idApi;
-            document.getElementById('sexo').value = sexo;
-            document.getElementById('puntos').value = puntos;
-            document.getElementById('altura').value = altura;
-            document.getElementById('imagen_url').value = imagen;
-            document.getElementById('activo').checked = (activo === "1");
-
-            document.getElementById('id_api').setAttribute('readonly', true);
-
-            const form = document.getElementById('formJugador');
-            form.action = urlEditarBase.replace('0', id);
-
-            toggleModal('jugadorModal');
-        }
-
-        function confirmarEliminar(id, nombre) {
-            document.getElementById('nombreJugadorEliminar').innerText = nombre;
-            const form = document.getElementById('formEliminar');
-            form.action = urlEliminarBase.replace('0', id);
-            toggleModal('deleteModal');
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             const inputJugador = document.getElementById('buscadorJugadores');
             const filasJugador = document.querySelectorAll('.fila-jugador');
