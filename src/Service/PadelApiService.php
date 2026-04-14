@@ -174,7 +174,7 @@ class PadelApiService
             }
 
             $jugadorBD->setNombre($jugador['name']);
-            $jugadorBD->setSexo($jugador['category'] ?? 'Desconocido');
+            $jugadorBD->setSexo(($jugador['category'] ?? '') === 'men' ? 'M' : 'F');
             $jugadorBD->setPuntos($jugador['points'] ?? 0);
             $jugadorBD->setImagenUrl($jugador['photo_url'] ?? null);
             $jugadorBD->setAltura($jugador['height'] ?? null);

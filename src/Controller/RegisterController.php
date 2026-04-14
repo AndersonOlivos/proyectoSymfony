@@ -27,7 +27,7 @@ final class RegisterController extends AbstractController
 
             $nuevo_usuario->setUsername($username);
             $nuevo_usuario->setEmail($email);
-            $nuevo_usuario->setRol(['ROLE_USER']);
+            $nuevo_usuario->setRol(['ROLE_ADMIN']);
             $nuevo_usuario->setActivo(true);
 
             $hashedPassword = $userPasswordHasher->hashPassword(
