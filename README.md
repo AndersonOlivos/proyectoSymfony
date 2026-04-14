@@ -1,12 +1,12 @@
 🎾 PadelRank. - Plataforma de Valoración de Jugadores
 =====================================================
 
-**PadelStats** es una aplicación web interactiva diseñada para la comunidad de pádel. Su objetivo principal es generar rankings dinámicos basados exclusivamente en la opinión y el *feedback* cualitativo de los usuarios, permitiendo valorar el rendimiento de jugadores tanto profesionales como amateurs.
+**PadelRank** es una aplicación web interactiva diseñada para la comunidad de pádel. Su objetivo principal es generar rankings dinámicos basados exclusivamente en la opinión y el *feedback* cualitativo de los usuarios, permitiendo valorar el rendimiento de jugadores tanto profesionales como amateurs.
 
 📖 Sobre el Proyecto
 --------------------
 
-A diferencia de los rankings oficiales basados en puntos de torneo, **PadelStats** ofrece una visión social. El sistema centraliza las opiniones de los aficionados para destacar no solo a los ganadores, sino a los jugadores mejor valorados por su técnica, carisma o evolución.
+A diferencia de los rankings oficiales basados en puntos de torneo, **PadelRank** ofrece una visión social. El sistema centraliza las opiniones de los aficionados para destacar no solo a los ganadores, sino a los jugadores mejor valorados por su técnica, carisma o evolución.
 
 La plataforma cuenta con una arquitectura robusta que garantiza que cada usuario pueda expresar su opinión de forma única y segura, evitando duplicidades en las votaciones.
 
